@@ -1,20 +1,24 @@
+const { getMessage } = require("./message");
+const { getNumbers } = require("./numbers");
+
 async function makeCalls() {
-
-    console.log("TEST: makeCalls is running");
-
-    for (let i = 1; i <= 2; i++) {
-
-        console.log("Calling number", i);
-
-        await new Promise(resolve =>
-            setTimeout(resolve, 1000)
-        );
-
+    const numbers = getNumbers();
+    if (!numbers.length) {
+        return {
+            ok: false,
+            error:
+                "No phone numbers configured. Set CALL_NUMBERS in .env (comma-separated E.164 values)."
+        };
     }
 
-    console.log("TEST: finished");
+    const message = getMessage();
 
+    for (const num of numbers) {
+        console.log(`[simulated] call ${num}: ${message.slice(0, 80)}${message.length > 80 ? "…" : ""}`);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    return { ok: true, count: numbers.length };
 }
 
 module.exports = makeCalls;
-    

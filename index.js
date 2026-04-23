@@ -8,6 +8,14 @@ const { getMessage, setMessage } = require("./message");
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
+const publicBaseUrl = (process.env.PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+
+function absoluteUrl(pathname) {
+    if (!publicBaseUrl) {
+        return pathname;
+    }
+    return `${publicBaseUrl}${pathname}`;
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -61,7 +69,7 @@ app.post("/voice/intro", (req, res) => {
 
     const gather = twiml.gather({
         input: "speech dtmf",
-        action: "/voice/respond",
+        action: absoluteUrl("/voice/respond"),
         method: "POST",
         speechTimeout: "auto",
         timeout: 6,
@@ -92,7 +100,7 @@ app.post("/voice/respond", async (req, res) => {
 
     if (!userInput) {
         twiml.say({ voice: "alice" }, "Sorry, I did not catch that.");
-        twiml.redirect({ method: "POST" }, "/voice/intro");
+        twiml.redirect({ method: "POST" }, absoluteUrl("/voice/intro"));
         res.type("text/xml");
         res.send(twiml.toString());
         return;
@@ -105,7 +113,7 @@ app.post("/voice/respond", async (req, res) => {
 
         twiml.say({ voice: "alice" }, aiReply || "Thanks for sharing.");
         twiml.pause({ length: 1 });
-        twiml.redirect({ method: "POST" }, "/voice/intro");
+        twiml.redirect({ method: "POST" }, absoluteUrl("/voice/intro"));
     } catch (error) {
         console.error("Voice response error:", error.message);
         twiml.say(

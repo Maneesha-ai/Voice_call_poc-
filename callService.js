@@ -2,6 +2,7 @@ const generateResponse = require("./aiService");
 const generateVoice = require("./ttsService");
 const makeRealCall = require("./twilioService");
 const { getNumbers } = require("./numbers");
+const customerSupportPrompt = require("./prompt");
 
 async function makeCalls() {
     console.log("makeCalls function started");
@@ -13,18 +14,23 @@ async function makeCalls() {
     console.log("Numbers:", numbers);
     console.log("Starting call process...");
 
-    const aiMessage = await generateResponse(
-        "Create a short greeting message for a customer call."
-    );
-    console.log("AI Message:", aiMessage);
+    // Step 1 — Generate AI message using full prompt
+    const aiMessage = await generateResponse(customerSupportPrompt);
 
+    console.log("AI Message:");
+    console.log(aiMessage);
+
+    // Step 2 — Generate voice file locally
     await generateVoice(aiMessage);
 
+    // Step 3 — Make calls using Twilio
     let initiated = 0;
     let failed = 0;
     for (const number of numbers) {
         console.log("Calling:", number);
+
         try {
+            // Make real call
             await makeRealCall(number);
             initiated += 1;
             console.log("Call initiated:", number);

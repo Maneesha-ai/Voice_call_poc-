@@ -20,8 +20,8 @@ async function makeCalls() {
     console.log("AI Message:");
     console.log(aiMessage);
 
-    // Step 2 — Generate voice file locally
-    await generateVoice(aiMessage);
+    // Step 2 — Generate voice file locally in default intro language (English)
+    await generateVoice(aiMessage, "en");
 
     // Step 3 — Make calls using Twilio
     let initiated = 0;
